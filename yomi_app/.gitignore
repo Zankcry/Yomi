@@ -48,3 +48,6 @@ service-account.json
 # Node modules (from scraping scripts)
 node_modules/
 package-lock.json
+
+# Firebase CLI cache & deploy artifacts
+.firebase/
