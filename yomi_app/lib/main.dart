@@ -8,6 +8,8 @@ import 'providers/library_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/library_screen.dart';
 import 'screens/browse_screen.dart';
+import 'widgets/responsive_wrapper.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +43,9 @@ class YomiApp extends StatelessWidget {
       title: 'Yomi',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
+      builder: (context, child) {
+        return ResponsiveWrapper(child: child!);
+      },
       home: const AuthWrapper(),
     );
   }
