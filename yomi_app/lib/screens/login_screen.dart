@@ -55,6 +55,30 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Logo or App Name
+              Center(
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  margin: const EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.accentColor.withOpacity(0.2),
+                        blurRadius: 18,
+                        offset: const Offset(0, 9),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(22),
+                    child: Image.asset(
+                      'assets/icons/app_icon.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
               Text(
                 'YOMI',
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
