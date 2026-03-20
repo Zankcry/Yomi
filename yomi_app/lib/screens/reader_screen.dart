@@ -39,7 +39,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
     
     if (libraryProvider.isInLibrary(widget.novel.id)) {
       libraryProvider.updateProgress(
-        authProvider.user!.uid,
+        authProvider.user!.id,
         widget.novel.id,
         _currentChapter.chapterNumber,
       );

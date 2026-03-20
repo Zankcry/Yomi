@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/novel.dart';
 import '../theme/app_theme.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class NovelCard extends StatelessWidget {
   final Novel novel;
@@ -25,17 +24,20 @@ class NovelCard extends StatelessWidget {
           children: [
             // Cover Image
             Positioned.fill(
-              child: CachedNetworkImage(
-                imageUrl: novel.coverUrl,
+              child: Image.network(
+                novel.coverImageUrl,
                 fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: AppTheme.cardBackground,
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                errorWidget: (context, url, error) => Container(
+                errorBuilder: (context, error, stackTrace) => Container(
                   color: AppTheme.cardBackground,
                   child: const Icon(Icons.book, size: 50, color: AppTheme.secondaryTextColor),
                 ),
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    color: AppTheme.cardBackground,
+                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  );
+                },
               ),
             ),
             

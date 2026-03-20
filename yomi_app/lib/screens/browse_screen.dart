@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
-import '../services/firestore_service.dart';
+import '../services/api_service.dart';
 import '../widgets/novel_card.dart';
 import '../models/novel.dart';
 import 'novel_detail_screen.dart';
 
-class BrowseScreen extends StatelessWidget {
+class BrowseScreen extends StatefulWidget {
   const BrowseScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final firestoreService = FirestoreService();
+  State<BrowseScreen> createState() => _BrowseScreenState();
+}
 
+class _BrowseScreenState extends State<BrowseScreen> {
+  final ApiService _apiService = ApiService();
+  late Future<List<Novel>> _novelsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _novelsFuture = _apiService.getAllNovels();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Browse'),
       ),
-      body: StreamBuilder<List<Novel>>(
-        stream: firestoreService.getAllNovels(),
+      body: FutureBuilder<List<Novel>>(
+        future: _novelsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

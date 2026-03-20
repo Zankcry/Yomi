@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // This will be created or updated manually/via CLI
 import 'theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/library_provider.dart';
@@ -10,19 +8,9 @@ import 'screens/library_screen.dart';
 import 'screens/browse_screen.dart';
 import 'widgets/responsive_wrapper.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Note: Firebase initialization will fail if firebase_options.dart is missing
-  // or Firebase is not configured properly.
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } catch (e) {
-    print("Firebase failed to initialize: $e");
-  }
-
+  
   runApp(
     MultiProvider(
       providers: [
@@ -66,8 +54,12 @@ class AuthWrapper extends StatelessWidget {
 
     if (authProvider.isAuthenticated) {
       // Fetch library once authenticated
-      Provider.of<LibraryProvider>(context, listen: false)
-          .fetchLibrary(authProvider.user!.uid);
+      // We do this in a post-frame callback or similar if needed, 
+      // but simple fetch works for now.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Provider.of<LibraryProvider>(context, listen: false)
+            .fetchLibrary(authProvider.user!.id);
+      });
       return const MainContainer();
     }
 

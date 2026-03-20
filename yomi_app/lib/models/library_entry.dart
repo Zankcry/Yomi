@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class LibraryEntry {
-  final String novelId;
+  final int novelId;
   final int lastChapterRead;
   final DateTime addedAt;
 
@@ -11,19 +9,17 @@ class LibraryEntry {
     required this.addedAt,
   });
 
-  factory LibraryEntry.fromFirestore(Map<String, dynamic> data) {
+  factory LibraryEntry.fromJson(Map<String, dynamic> json) {
     return LibraryEntry(
-      novelId: data['novelId'] ?? '',
-      lastChapterRead: data['lastChapterRead'] ?? 1,
-      addedAt: data['addedAt'] != null ? (data['addedAt'] as Timestamp).toDate() : DateTime.now(),
+      novelId: json['novel_id'] is int
+          ? json['novel_id']
+          : int.parse(json['novel_id'].toString()),
+      lastChapterRead: json['last_chapter_read'] is int
+          ? json['last_chapter_read']
+          : int.tryParse(json['last_chapter_read']?.toString() ?? '1') ?? 1,
+      addedAt: json['added_at'] != null
+          ? DateTime.tryParse(json['added_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'novelId': novelId,
-      'lastChapterRead': lastChapterRead,
-      'addedAt': Timestamp.fromDate(addedAt),
-    };
   }
 }

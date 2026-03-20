@@ -9,19 +9,13 @@ class Chapter {
     required this.content,
   });
 
-  factory Chapter.fromFirestore(Map<String, dynamic> data) {
+  factory Chapter.fromJson(Map<String, dynamic> json) {
     return Chapter(
-      chapterNumber: data['chapterNumber'] ?? 0,
-      title: data['title'] ?? '',
-      content: data['content'] ?? '',
+      chapterNumber: json['chapter_number'] is int
+          ? json['chapter_number']
+          : int.tryParse(json['chapter_number']?.toString() ?? '0') ?? 0,
+      title: json['title'] ?? '',
+      content: json['content'] ?? '',
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'chapterNumber': chapterNumber,
-      'title': title,
-      'content': content,
-    };
   }
 }

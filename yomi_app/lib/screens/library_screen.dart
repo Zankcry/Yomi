@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/library_provider.dart';
-import '../services/firestore_service.dart';
+import '../services/api_service.dart';
 import '../widgets/novel_card.dart';
 import '../models/novel.dart';
 import 'novel_detail_screen.dart';
@@ -12,7 +12,7 @@ class LibraryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final libraryProvider = Provider.of<LibraryProvider>(context);
-    final firestoreService = FirestoreService();
+    final apiService = ApiService();
 
     return Scaffold(
       appBar: AppBar(
@@ -32,42 +32,44 @@ class LibraryScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: libraryProvider.libraryEntries.isEmpty
-          ? _buildEmptyState(context)
-          : GridView.builder(
-              padding: const EdgeInsets.all(12),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, // Tachiyomi-style grid
-                childAspectRatio: 0.7,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-              ),
-              itemCount: libraryProvider.libraryEntries.length,
-              itemBuilder: (context, index) {
-                final entry = libraryProvider.libraryEntries[index];
-                return FutureBuilder<Novel>(
-                  future: firestoreService.getNovel(entry.novelId),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Card(child: Center(child: CircularProgressIndicator(strokeWidth: 2)));
-                    }
-                    final novel = snapshot.data!;
-                    return NovelCard(
-                      novel: novel,
-                      progressLabel: 'Ch. ${entry.lastChapterRead}',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => NovelDetailScreen(novel: novel),
-                          ),
+      body: libraryProvider.isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : libraryProvider.libraryEntries.isEmpty
+              ? _buildEmptyState(context)
+              : GridView.builder(
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 0.7,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                  ),
+                  itemCount: libraryProvider.libraryEntries.length,
+                  itemBuilder: (context, index) {
+                    final entry = libraryProvider.libraryEntries[index];
+                    return FutureBuilder<Novel>(
+                      future: apiService.getNovel(entry.novelId),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Card(child: Center(child: CircularProgressIndicator(strokeWidth: 2)));
+                        }
+                        final novel = snapshot.data!;
+                        return NovelCard(
+                          novel: novel,
+                          progressLabel: 'Ch. ${entry.lastChapterRead}',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => NovelDetailScreen(novel: novel),
+                              ),
+                            );
+                          },
                         );
                       },
                     );
                   },
-                );
-              },
-            ),
+                ),
     );
   }
 

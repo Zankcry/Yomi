@@ -1,37 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../models/novel.dart';
 import '../models/chapter.dart';
-import '../services/firestore_service.dart';
+import '../services/api_service.dart';
 import '../providers/library_provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import 'reader_screen.dart';
 
-class NovelDetailScreen extends StatelessWidget {
+class NovelDetailScreen extends StatefulWidget {
   final Novel novel;
 
   const NovelDetailScreen({super.key, required this.novel});
 
   @override
+  State<NovelDetailScreen> createState() => _NovelDetailScreenState();
+}
+
+class _NovelDetailScreenState extends State<NovelDetailScreen> {
+  final ApiService _apiService = ApiService();
+  late Future<List<Chapter>> _chaptersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _chaptersFuture = _apiService.getChapters(widget.novel.id);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final firestoreService = FirestoreService();
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final libraryProvider = Provider.of<LibraryProvider>(context);
 
-    final bool isInLibrary = libraryProvider.isInLibrary(novel.id);
+    final bool isInLibrary = libraryProvider.isInLibrary(widget.novel.id);
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // Tachiyomi-style Header with Image Background
           SliverAppBar(
             expandedHeight: 300.0,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                novel.title,
+                widget.novel.title,
                 style: const TextStyle(
                   shadows: [Shadow(color: Colors.black, blurRadius: 4)],
                 ),
@@ -39,9 +50,13 @@ class NovelDetailScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  CachedNetworkImage(
-                    imageUrl: novel.coverUrl,
+                  Image.network(
+                    widget.novel.coverImageUrl,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: AppTheme.cardBackground,
+                      child: const Icon(Icons.book, size: 50, color: AppTheme.secondaryTextColor),
+                    ),
                   ),
                   Container(
                     decoration: const BoxDecoration(
@@ -56,8 +71,6 @@ class NovelDetailScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Action Buttons and Info
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -70,9 +83,9 @@ class NovelDetailScreen extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () {
                             if (isInLibrary) {
-                              libraryProvider.removeFromLibrary(authProvider.user!.uid, novel.id);
+                              libraryProvider.removeFromLibrary(authProvider.user!.id, widget.novel.id);
                             } else {
-                              libraryProvider.addToLibrary(authProvider.user!.uid, novel.id);
+                              libraryProvider.addToLibrary(authProvider.user!.id, widget.novel.id);
                             }
                           },
                           icon: Icon(isInLibrary ? Icons.delete : Icons.add_to_photos),
@@ -87,7 +100,7 @@ class NovelDetailScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   Text('Synopsis', style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 8),
-                  Text(novel.synopsis),
+                  Text(widget.novel.synopsis),
                   const SizedBox(height: 24),
                   Text('Chapters', style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 8),
@@ -95,20 +108,21 @@ class NovelDetailScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Chapter List
-          StreamBuilder<List<Chapter>>(
-            stream: firestoreService.getChapters(novel.id),
+          FutureBuilder<List<Chapter>>(
+            future: _chaptersFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()));
+              }
+              if (snapshot.hasError) {
+                return SliverToBoxAdapter(child: Center(child: Text('Error: ${snapshot.error}')));
               }
               if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const SliverToBoxAdapter(child: Center(child: Text("No chapters found.")));
               }
 
               final chapters = snapshot.data!;
-              final lastRead = libraryProvider.getProgress(novel.id);
+              final lastRead = libraryProvider.getProgress(widget.novel.id);
 
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
@@ -130,7 +144,7 @@ class NovelDetailScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ReaderScreen(
-                              novel: novel,
+                              novel: widget.novel,
                               chapter: chapter,
                               allChapters: chapters,
                             ),
