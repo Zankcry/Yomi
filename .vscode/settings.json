@@ -1,0 +1,7 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "brew": true,
+        "gem": true,
+        "pod": true
+    }
+}
