@@ -17,10 +17,10 @@ class Novel {
     this.createdAt,
   });
 
-  /// URL to load the cover image from the local XAMPP server
+  /// URL to load the cover image
   String get coverImageUrl =>
       coverImage != null && coverImage!.isNotEmpty
-          ? 'http://localhost/yomi_api/covers/$coverImage'
+          ? './covers/$coverImage'
           : '';
 
   factory Novel.fromJson(Map<String, dynamic> json) {
