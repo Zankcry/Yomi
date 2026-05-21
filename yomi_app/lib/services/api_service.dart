@@ -7,7 +7,7 @@ import '../models/library_entry.dart';
 class ApiService {
   // Change this to your XAMPP server address
   // Use 10.0.2.2 for Android emulator, localhost for web/desktop
-  static const String baseUrl = 'https://yomi.infinityfreeapp.com/api.php';
+  static const String baseUrl = './api.php';
 
   // ─── Auth ──────────────────────────────────────────────────────────────
 
