@@ -21,10 +21,10 @@
  */
 
 // ─── Database Configuration ─────────────────────────────────────────────────
-$DB_HOST = 'localhost';
-$DB_USER = 'root';
-$DB_PASS = '';
-$DB_NAME = 'yomi_db';
+$DB_HOST = 'sql313.infinityfree.com';
+$DB_USER = 'if0_41980374';
+$DB_PASS = 'LR7FFXEvDncye';
+$DB_NAME = 'if0_41980374_yomi_db';
 
 // ─── CORS & Headers ─────────────────────────────────────────────────────────
 header('Content-Type: application/json; charset=utf-8');
